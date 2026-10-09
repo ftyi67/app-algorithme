@@ -1,0 +1,6 @@
+{
+  "name": "DaftrAlgo",
+  "description": "DaftrAlgo — Cahier d'Algorithme simple et rapide : écrire, scanner sur feuille et exécuter pas à pas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

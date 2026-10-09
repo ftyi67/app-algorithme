@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DaftrAlgo — Cahier d'Algorithme & Scanner Feuille (Version Web)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Tesseract.js pour le vrai OCR dans le navigateur web -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <style>
+    :root {
+      --bg-beige: #FDF8F0;
+      --surface-sand: #F5ECE0;
+      --card-beige: #F3E9DC;
+      --sheet-cream: #FFFDF9;
+      --blue-pen: #2B6CB0;
+      --emerald-run: #2E7D32;
+      --amber-accent: #D97706;
+      --coral-error: #C53030;
+      --text-primary: #2C221E;
+      --text-muted: #6E5D53;
+      --border-subtle: #DCCBB8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-beige);
+      color: var(--text-primary);
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background-color: var(--surface-sand);
+      border-bottom: 1.5px solid var(--border-subtle);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--sheet-cream);
+      border: 2px solid var(--blue-pen);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--blue-pen);
+      box-shadow: 0 2px 6px rgba(44, 34, 30, 0.08);
+    }
+
+    .logo-badge span {
+      background: var(--amber-accent);
+      color: #fff;
+      padding: 3px 6px;
+      border-radius: 6px;
+    }
+
+    .brand-title h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .brand-title p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      border: 1.5px solid var(--border-subtle);
+      background: var(--card-beige);
+      color: var(--text-primary);
+      padding: 9px 16px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--blue-pen);
+      color: #fff;
+      border-color: var(--blue-pen);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 18px 16px 40px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card-beige);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--amber-accent);
+      display: inline-block;
+    }
+
+    /* Quick Symbol & Keyword Rows */
+    .chips-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+
+    .chip-btn {
+      border: 1px solid var(--border-subtle);
+      background: var(--sheet-cream);
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 7px 12px;
+      border-radius: 9px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .chip-btn.primary-arrow {
+      background: var(--amber-accent);
+      color: #fff;
+      border-color: var(--amber-accent);
+    }
+
+    .chip-btn.keyword {
+      color: var(--blue-pen);
+    }
+
+    .chip-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    /* Notebook Editor Card */
+    .editor-card {
+      background: var(--sheet-cream);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .editor-topbar {
+      background: var(--card-beige);
+      padding: 8px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .window-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .w-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .small-btn {
+      border: 1px solid var(--border-subtle);
+      background: var(--sheet-cream);
+      color: var(--text-primary);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .editor-body {
+      display: flex;
+      min-height: 250px;
+    }
+
+    .line-numbers {
+      padding: 14px 10px 14px 12px;
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      line-height: 24px;
+      font-weight: 700;
+      color: var(--amber-accent);
+      user-select: none;
+      background: rgba(243, 233, 220, 0.35);
+      border-right: 1px solid var(--border-subtle);
+      white-space: pre;
+    }
+
+    #codeInput {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: var(--sheet-cream);
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      line-height: 24px;
+      padding: 14px;
+      resize: vertical;
+      min-height: 250px;
+    }
+
+    .run-btn {
+      background: var(--emerald-run);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      height: 52px;
+      font-family: inherit;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* Interactive Console */
+    .console-card {
+      background: var(--card-beige);
+      border: 2px solid var(--emerald-run);
+      border-radius: 16px;
+      padding: 14px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .console-card.error {
+      border-color: var(--coral-error);
+    }
+
+    .console-card.waiting {
+      border-color: var(--amber-accent);
+    }
+
+    .stdout-box {
+      background: var(--sheet-cream);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      line-height: 22px;
+      color: var(--emerald-run);
+      white-space: pre-wrap;
+    }
+
+    .stderr-box {
+      background: rgba(197, 48, 48, 0.1);
+      border: 1px solid var(--coral-error);
+      border-radius: 10px;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--coral-error);
+      white-space: pre-wrap;
+    }
+
+    .lire-box {
+      background: var(--sheet-cream);
+      border: 1.5px solid var(--amber-accent);
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .lire-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .lire-input-row input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      background: var(--card-beige);
+    }
+
+    .lire-input-row button {
+      background: var(--blue-pen);
+      color: #fff;
+      border: none;
+      padding: 0 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .vars-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .var-badge {
+      background: var(--sheet-cream);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--blue-pen);
+    }
+
+    /* Tutorial Overlay Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(44, 34, 30, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+
+    .tutorial-modal {
+      background: var(--bg-beige);
+      border: 2px solid var(--border-subtle);
+      border-radius: 22px;
+      max-width: 480px;
+      width: 100%;
+      padding: 22px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Tutoriel de Bienvenue (Dakhla) -->
+  <div id="tutorialModal" class="modal-overlay">
+    <div class="tutorial-modal">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="background:var(--card-beige); border:1px solid var(--border-subtle); padding:4px 10px; border-radius:20px; font-size:12px; font-weight:700; color:var(--amber-accent);">
+          Bienvenue sur DaftrAlgo
+        </span>
+        <button class="small-btn" onclick="closeTutorial()">Passer ➔</button>
+      </div>
+
+      <div style="margin: 6px auto; width:84px; height:84px; border-radius:22px; background:var(--card-beige); border:2px solid var(--blue-pen); display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:20px; color:var(--blue-pen);">
+        ← Algo
+      </div>
+
+      <h2 style="font-size:26px;">DaftrAlgo</h2>
+      <p style="font-size:14px; color:var(--text-muted);">
+        Votre Cahier d'Algorithme Simple, Intelligent & Rapide (Web & Mobile)
+      </p>
+
+      <div class="card" style="text-align:left;">
+        <p style="font-weight:700; color:var(--blue-pen); margin-bottom:6px;">1. Écrire avec les Flèches d'Affectation (←)</p>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">
+          Insérez <code>←</code>, <code>Si</code>, <code>Pour</code>, <code>Ecrire</code> et <code>Lire</code> exactement à la position de votre curseur.
+        </p>
+        <p style="font-weight:700; color:var(--amber-accent); margin-bottom:6px;">2. Scanner une Feuille (OCR)</p>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">
+          Importez une photo de votre cahier pour lire automatiquement l'algorithme.
+        </p>
+        <p style="font-weight:700; color:var(--emerald-run); margin-bottom:6px;">3. Exécution Interactive & Erreurs par Ligne</p>
+        <p style="font-size:13px; color:var(--text-muted);">
+          Affiche <code>Ecrire(...)</code> d'abord, puis vous demande la valeur de <code>Lire(n)</code> en direct !
+        </p>
+      </div>
+
+      <button class="run-btn" onclick="closeTutorial()">Commencer sur DaftrAlgo</button>
+    </div>
+  </div>
+
+  <!-- Barre du haut -->
+  <header>
+    <div class="brand">
+      <div class="logo-badge"><span>← Algo</span></div>
+      <div class="brand-title">
+        <h1>DaftrAlgo</h1>
+        <p>Cahier d'Algorithme & Scanner Feuille</p>
+      </div>
+    </div>
+
+    <div class="nav-tabs">
+      <button id="tabIdeBtn" class="tab-btn active" onclick="switchTab('ide')">Algorithme</button>
+      <button id="tabScanBtn" class="tab-btn" onclick="switchTab('scanner')">Scanner Feuille</button>
+      <button class="tab-btn" onclick="openTutorial()">ⓘ Tutoriel</button>
+    </div>
+  </header>
+
+  <!-- Contenu Principal -->
+  <main>
+    <!-- ONGLET 1 : ÉDITEUR ALGORITHME -->
+    <section id="ideSection" style="display:flex; flex-direction:column; gap:14px;">
+      <div class="card">
+        <div class="section-label">
+          <span class="dot"></span>
+          Flèches d'Affectation & Symboles Rapides :
+        </div>
+        <div class="chips-row">
+          <button class="chip-btn primary-arrow" onclick="insertToken('← ')">← Affectation</button>
+          <button class="chip-btn primary-arrow" onclick="insertToken('<- ')">&lt;- Flèche</button>
+          <button class="chip-btn primary-arrow" onclick="insertToken(':= ')">:=</button>
+          <button class="chip-btn" onclick="insertToken('<= ')">&lt;=</button>
+          <button class="chip-btn" onclick="insertToken('>= ')">&gt;=</button>
+          <button class="chip-btn" onclick="insertToken('<> ')">&lt;&gt; Différent</button>
+          <button class="chip-btn" onclick="insertToken('\"\"', true)">" "</button>
+          <button class="chip-btn" onclick="insertToken('()', true)">( )</button>
+          <button class="chip-btn" onclick="insertToken(' : ')">:</button>
+        </div>
+        <div class="chips-row" style="margin-bottom:0;">
+          <button class="chip-btn keyword" onclick="insertToken('Algorithme ')">Algorithme</button>
+          <button class="chip-btn keyword" onclick="insertToken('Variables\n    ')">Variables</button>
+          <button class="chip-btn keyword" onclick="insertToken('Entier')">Entier</button>
+          <button class="chip-btn keyword" onclick="insertToken('Reel')">Reel</button>
+          <button class="chip-btn keyword" onclick="insertToken('Chaine')">Chaine</button>
+          <button class="chip-btn keyword" onclick="insertToken('Debut\n    ')">Debut</button>
+          <button class="chip-btn keyword" onclick="insertToken('Ecrire(\"\")', true)">Ecrire</button>
+          <button class="chip-btn keyword" onclick="insertToken('Lire()')">Lire</button>
+          <button class="chip-btn keyword" onclick="insertToken('Si  Alors')">Si...Alors</button>
+          <button class="chip-btn keyword" onclick="insertToken('Sinon')">Sinon</button>
+          <button class="chip-btn keyword" onclick="insertToken('FinSi')">FinSi</button>
+          <button class="chip-btn keyword" onclick="insertToken('Pour i ← 1 a n Faire')">Pour</button>
+          <button class="chip-btn keyword" onclick="insertToken('FinPour')">FinPour</button>
+          <button class="chip-btn keyword" onclick="insertToken('Fin')">Fin</button>
+        </div>
+      </div>
+
+      <!-- Feuille d'Algorithme -->
+      <div class="editor-card">
+        <div class="editor-topbar">
+          <div class="window-dots">
+            <span class="w-dot" style="background:var(--coral-error);"></span>
+            <span class="w-dot" style="background:var(--amber-accent);"></span>
+            <span class="w-dot" style="background:var(--emerald-run);"></span>
+            <span style="margin-left:6px;">Cahier d'Algorithme</span>
+          </div>
+          <div class="editor-actions">
+            <button class="small-btn" onclick="clearCode()" style="color:var(--coral-error);">Effacer</button>
+            <button class="small-btn" onclick="resetExample()" style="color:var(--blue-pen);">Exemple</button>
+          </div>
+        </div>
+        <div class="editor-body">
+          <div id="lineNumbers" class="line-numbers">1</div>
+          <textarea id="codeInput" oninput="updateLineNumbers()" spellcheck="false"></textarea>
+        </div>
+      </div>
+
+      <button class="run-btn" onclick="startExecution()">▶ Exécuter l'Algorithme</button>
+
+      <!-- Console d'exécution interactive -->
+      <div id="consoleCard" class="console-card">
+        <h3 id="consoleTitle" style="font-size:16px;">Résultat de l'Exécution :</h3>
+        <div id="stdoutBox" class="stdout-box hidden"></div>
+
+        <!-- Saisie interactive Lire(variable) -->
+        <div id="lireBox" class="lire-box">
+          <div id="lirePromptLabel" style="font-weight:700; color:var(--amber-accent); font-size:14px;"></div>
+          <div class="lire-input-row">
+            <input type="text" id="lireInputField" placeholder="Tapez la valeur ici..." onkeydown="if(event.key==='Enter') submitLireValue()" />
+            <button onclick="submitLireValue()">Entrer ➔</button>
+          </div>
+        </div>
+
+        <div id="stderrBox" class="stderr-box hidden"></div>
+
+        <div id="varsContainer" class="hidden">
+          <p style="font-size:13px; font-weight:700; color:var(--amber-accent); margin-bottom:6px;">
+            Valeurs finales des Variables :
+          </p>
+          <div id="varsRow" class="vars-row"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ONGLET 2 : SCANNER FEUILLE OCR -->
+    <section id="scannerSection" class="hidden" style="display:flex; flex-direction:column; gap:14px;">
+      <div class="card">
+        <h2 style="font-size:20px; margin-bottom:6px;">Scanner un Algorithme écrit sur Papier</h2>
+        <p style="font-size:14px; color:var(--text-muted); margin-bottom:12px;">
+          Choisissez une photo de votre feuille/cahier pour lire automatiquement le texte et les nombres avec OCR, puis exécutez-le.
+        </p>
+        <input type="file" id="ocrFileInput" accept="image/*" onchange="scanUploadedImage(event)" style="margin-bottom:10px;" />
+        <div id="ocrStatus" style="font-weight:700; color:var(--blue-pen); font-size:14px;"></div>
+      </div>
+
+      <div class="card">
+        <p style="font-weight:700; color:var(--emerald-run); margin-bottom:8px;">
+          Texte & Chiffres lus (modifiable) :
+        </p>
+        <textarea id="scannedTextDraft" style="width:100%; min-height:180px; font-family:'JetBrains Mono',monospace; font-size:14px; padding:12px; border-radius:10px; border:1px solid var(--border-subtle); background:var(--sheet-cream);"></textarea>
+        <button class="run-btn" style="width:100%; margin-top:10px;" onclick="loadScannedIntoIde()">
+          ▶ Mettre dans l'Éditeur & Exécuter
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const DEFAULT_ALGO = `Algorithme CalculSomme
+Variables
+    n, i, s : Entier
+Debut
+    Ecrire("Donner un nombre n :")
+    Lire(n)
+    s ← 0
+    Pour i ← 1 a n Faire
+        s ← s + i
+    FinPour
+    Ecrire("La somme de 1 a ", n, " est : ", s)
+Fin`;
+
+    let providedInputs = [];
+
+    function updateLineNumbers() {
+      const textarea = document.getElementById('codeInput');
+      const count = textarea.value.split('\n').length || 1;
+      let nums = '';
+      for (let i = 1; i <= count; i++) {
+        nums += i + (i < count ? '\n' : '');
+      }
+      document.getElementById('lineNumbers').textContent = nums;
+    }
+
+    function resetExample() {
+      document.getElementById('codeInput').value = DEFAULT_ALGO;
+      updateLineNumbers();
+      document.getElementById('consoleCard').style.display = 'none';
+    }
+
+    function clearCode() {
+      document.getElementById('codeInput').value = '';
+      updateLineNumbers();
+      document.getElementById('codeInput').focus();
+    }
+
+    function insertToken(token, moveInside = false) {
+      const ta = document.getElementById('codeInput');
+      const start = ta.selectionStart || 0;
+      const end = ta.selectionEnd || 0;
+      const val = ta.value;
+      ta.value = val.substring(0, start) + token + val.substring(end);
+      updateLineNumbers();
+      ta.focus();
+      const pos = moveInside ? start + token.length - 1 : start + token.length;
+      ta.setSelectionRange(pos, pos);
+    }
+
+    function switchTab(tab) {
+      document.getElementById('ideSection').classList.toggle('hidden', tab !== 'ide');
+      document.getElementById('scannerSection').classList.toggle('hidden', tab !== 'scanner');
+      document.getElementById('tabIdeBtn').classList.toggle('active', tab === 'ide');
+      document.getElementById('tabScanBtn').classList.toggle('active', tab === 'scanner');
+    }
+
+    function closeTutorial() {
+      document.getElementById('tutorialModal').classList.add('hidden');
+    }
+
+    function openTutorial() {
+      document.getElementById('tutorialModal').classList.remove('hidden');
+    }
+
+    function startExecution() {
+      providedInputs = [];
+      runVirtualExecution();
+    }
+
+    function submitLireValue() {
+      const field = document.getElementById('lireInputField');
+      const val = field.value.trim();
+      if (!val) return;
+      providedInputs.push(val);
+      field.value = '';
+      runVirtualExecution();
+    }
+
+    function runVirtualExecution() {
+      const code = document.getElementById('codeInput').value;
+      const lines = code.split('\n');
+      const outputLines = [];
+      const errorLines = [];
+      const vars = {};
+      const varTypes = {};
+      const queue = [...providedInputs];
+
+      const indexed = [];
+      lines.forEach((raw, idx) => {
+        const clean = raw.split('//')[0].trim();
+        if (clean.length > 0) indexed.push({ lineNumber: idx + 1, text: clean });
+      });
+
+      if (indexed.length === 0) {
+        renderConsole([], ["❌ Ligne 1 : L'algorithme est vide."], {}, null);
+        return;
+      }
+
+      const hasDebut = indexed.some(l => /^(debut|début|begin)$/i.test(l.text));
+      const hasFin = indexed.some(l => /^(fin|end|finalgorithme)$/i.test(l.text));
+      if (!hasDebut) errorLines.push("❌ Erreur de structure : Il manque le mot-clé 'Debut'.");
+      if (!hasFin) errorLines.push(`❌ Ligne ${indexed[indexed.length - 1].lineNumber} : Il manque le mot-clé 'Fin'.`);
+
+      let inVars = false;
+      let inBody = !hasDebut;
+      const body = [];
+
+      for (const item of indexed) {
+        const lower = item.text.toLowerCase();
+        if (lower.startsWith('algorithme')) continue;
+        if (lower === 'variables' || lower === 'variable') { inVars = true; inBody = false; continue; }
+        if (lower === 'debut' || lower === 'début') { inVars = false; inBody = true; continue; }
+        if (lower === 'fin' || lower === 'finalgorithme') { inBody = false; continue; }
+
+        if (inVars) {
+          if (!item.text.includes(':')) {
+            errorLines.push(`❌ Ligne ${item.lineNumber} : Déclaration invalide (ex: n : Entier) dans : ${item.text}`);
+          } else {
+            const [namesPart, typePart] = item.text.split(':');
+            const t = (typePart || '').trim();
+            namesPart.split(',').map(s => s.trim()).filter(Boolean).forEach(n => {
+              vars[n] = 0;
+              varTypes[n] = t || 'Entier';
+            });
+          }
+        } else if (inBody) {
+          body.push(item);
+        }
+      }
+
+      if (errorLines.length > 0) {
+        renderConsole([], errorLines, {}, null);
+        return;
+      }
+
+      let waitingVar = null;
+
+      function evalExpr(expr, lineNum) {
+        const e = expr.trim();
+        if (e.startsWith('"') && e.endsWith('"')) return e.slice(1, -1);
+        if (e in vars) return vars[e];
+        if (!isNaN(Number(e))) return Number(e);
+        try {
+          const replaced = e.replace(/\b[a-zA-Z_][a-zA-Z0-9_]*\b/g, m => {
+            if (m in vars) return JSON.stringify(vars[m]);
+            throw new Error(`La variable '${m}' n'est pas déclarée.`);
+          });
+          return Function('"use strict"; return (' + replaced + ')')();
+        } catch (err) {
+          errorLines.push(`❌ Ligne ${lineNum} : ${err.message}`);
+          return 0;
+        }
+      }
+
+      function execStatements(stmts) {
+        let i = 0;
+        while (i < stmts.length) {
+          if (errorLines.length > 0 || waitingVar) return;
+          const { lineNumber, text } = stmts[i];
+          const lower = text.toLowerCase();
+
+          if (lower.startsWith('ecrire') || lower.startsWith('écrire')) {
+            const inside = text.substring(text.indexOf('(') + 1, text.lastIndexOf(')'));
+            const parts = inside.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+            const msg = parts.map(p => evalExpr(p, lineNumber)).join('');
+            if (errorLines.length === 0) outputLines.push(msg);
+            i++;
+          } else if (lower.startsWith('lire')) {
+            const inside = text.substring(text.indexOf('(') + 1, text.lastIndexOf(')'));
+            const vNames = inside.split(',').map(s => s.trim()).filter(Boolean);
+            for (const v of vNames) {
+              if (queue.length === 0) {
+                waitingVar = { name: v, type: varTypes[v] || 'Entier' };
+                return;
+              }
+              const raw = queue.shift();
+              outputLines.push(`> ${v} ← ${raw}`);
+              vars[v] = isNaN(Number(raw)) ? raw : Number(raw);
+            }
+            i++;
+          } else if (lower.startsWith('pour ')) {
+            let endIdx = i + 1;
+            let depth = 1;
+            while (endIdx < stmts.length && depth > 0) {
+              const l = stmts[endIdx].text.toLowerCase();
+              if (l.startsWith('pour ')) depth++;
+              else if (l.startsWith('finpour') || l.startsWith('fin pour')) depth--;
+              if (depth > 0) endIdx++;
+            }
+            const m = text.match(/^pour\s+([a-zA-Z0-9_]+)\s*(?:<-|←|:=|=)\s*(.+?)\s+(?:a|à)\s+(.+?)(?:\s+faire)?$/i);
+            if (m) {
+              const vName = m[1];
+              const sVal = Number(evalExpr(m[2], lineNumber));
+              const eVal = Number(evalExpr(m[3], lineNumber));
+              const sub = stmts.slice(i + 1, endIdx);
+              for (let c = sVal; c <= eVal; c++) {
+                if (waitingVar || errorLines.length > 0) break;
+                vars[vName] = c;
+                execStatements(sub);
+              }
+            } else {
+              errorLines.push(`❌ Ligne ${lineNumber} : Syntaxe 'Pour' invalide.`);
+            }
+            i = endIdx + 1;
+          } else if (text.includes('←') || text.includes('<-') || text.includes(':=')) {
+            const sep = text.includes('←') ? '←' : (text.includes('<-') ? '<-' : ':=');
+            const [left, right] = text.split(sep);
+            vars[left.trim()] = evalExpr(right, lineNumber);
+            i++;
+          } else {
+            errorLines.push(`❌ Ligne ${lineNumber} : Instruction inconnue : ${text}`);
+            i++;
+          }
+        }
+      }
+
+      execStatements(body);
+      renderConsole(outputLines, errorLines, vars, waitingVar);
+    }
+
+    function renderConsole(stdoutLines, stderrLines, vars, waitingVar) {
+      const card = document.getElementById('consoleCard');
+      const title = document.getElementById('consoleTitle');
+      const outBox = document.getElementById('stdoutBox');
+      const errBox = document.getElementById('stderrBox');
+      const lireBox = document.getElementById('lireBox');
+      const varsCont = document.getElementById('varsContainer');
+      const varsRow = document.getElementById('varsRow');
+
+      card.style.display = 'flex';
+      card.className = 'console-card';
+
+      if (stderrLines.length > 0) {
+        card.classList.add('error');
+        title.textContent = "Attention : Erreur détectée dans l'Algorithme !";
+      } else if (waitingVar) {
+        card.classList.add('waiting');
+        title.textContent = `Exécution en cours — En attente de Lire(${waitingVar.name})`;
+      } else {
+        title.textContent = "Résultat de l'Exécution :";
+      }
+
+      if (stdoutLines.length > 0) {
+        outBox.textContent = stdoutLines.join('\n');
+        outBox.classList.remove('hidden');
+      } else {
+        outBox.classList.add('hidden');
+      }
+
+      if (waitingVar) {
+        lireBox.style.display = 'flex';
+        document.getElementById('lirePromptLabel').textContent =
+          `Instruction Lire(${waitingVar.name}) : Entrez la valeur de '${waitingVar.name}' (${waitingVar.type}) :`;
+        setTimeout(() => document.getElementById('lireInputField').focus(), 50);
+      } else {
+        lireBox.style.display = 'none';
+      }
+
+      if (stderrLines.length > 0) {
+        errBox.textContent = stderrLines.join('\n\n');
+        errBox.classList.remove('hidden');
+      } else {
+        errBox.classList.add('hidden');
+      }
+
+      if (stderrLines.length === 0 && !waitingVar && Object.keys(vars).length > 0) {
+        varsCont.classList.remove('hidden');
+        varsRow.innerHTML = Object.entries(vars)
+          .map(([k, v]) => `<span class="var-badge">${k} ← ${v}</span>`)
+          .join('');
+      } else {
+        varsCont.classList.add('hidden');
+      }
+    }
+
+    async function scanUploadedImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const status = document.getElementById('ocrStatus');
+      status.textContent = "Lecture OCR de la feuille en cours...";
+      try {
+        const result = await Tesseract.recognize(file, 'fra+eng');
+        const cleaned = (result.data.text || '').replace(/<-/g, '←').trim();
+        document.getElementById('scannedTextDraft').value = cleaned;
+        status.textContent = "Texte lu avec succès !";
+      } catch (e) {
+        status.textContent = "Erreur lors de la lecture OCR.";
+      }
+    }
+
+    function loadScannedIntoIde() {
+      const scanned = document.getElementById('scannedTextDraft').value.trim();
+      if (!scanned) return;
+      document.getElementById('codeInput').value = scanned;
+      updateLineNumbers();
+      switchTab('ide');
+      startExecution();
+    }
+
+    // Initialisation au chargement
+    resetExample();
+    document.getElementById('scannedTextDraft').value = DEFAULT_ALGO;
+  </script>
+</body>
+</html>

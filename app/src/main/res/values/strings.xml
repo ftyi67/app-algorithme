@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">DaftrAlgo</string>
+    <string name="tab_editor">Algorithme</string>
+    <string name="tab_scanner">Scanner Feuille</string>
+    <string name="scan_from_camera">Caméra OCR</string>
+    <string name="scan_from_gallery">Galerie Photo</string>
+    <string name="run_code">Exécuter l\'Algorithme</string>
+</resources>
